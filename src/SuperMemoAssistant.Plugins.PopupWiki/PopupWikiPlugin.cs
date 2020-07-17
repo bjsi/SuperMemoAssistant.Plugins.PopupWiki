@@ -43,6 +43,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
   using SuperMemoAssistant.Services.Sentry;
   using SuperMemoAssistant.Services.UI.Configuration;
   using SuperMemoAssistant.Sys.IO.Devices;
+  using SuperMemoAssistant.Sys.Remoting;
 
   // ReSharper disable once UnusedMember.Global
   // ReSharper disable once ClassNeverInstantiated.Global
@@ -103,27 +104,27 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
       ConfigurationWindow.ShowAndActivate(HotKeyManager.Instance, Config);
     }
 
+
     [LogToErrorOnException]
     public async void WikipediaSearch()
     {
       try
       {
 
-        string query = Popups.GetSearchQuery("Search Wikipedia");
-        if (query.IsNullOrEmpty())
+        string searchTerm = Popups.GetSearchQuery("Search Wikipedia");
+        if (searchTerm.IsNullOrEmpty())
           return;
 
-        // build the search url
-        string url = "";
+        if (popupWindowSvc.IsNull())
+        {
+          LogTo.Warning("Failed to open new Wikipedia window in PopupBrowser because popupService is null.");
+          return;
+        }
 
-        if (await popupWindowSvc?.Open(url))
-        {
-          LogTo.Debug("");
-        }
+        if (await popupWindowSvc?.Open(searchTerm, ContentType.Search))
+          LogTo.Debug("Successfully opened new Wikipedia window in PopupBrowser");
         else
-        {
-          LogTo.Error("");
-        }
+          LogTo.Error("Failed to open new Wikipedia window in PopupBrowser");
 
       }
       catch (RemotingException) { }
