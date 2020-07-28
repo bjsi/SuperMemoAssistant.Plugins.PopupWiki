@@ -38,6 +38,9 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
     public string WikiLanguages { get; set; } = "en";
     public string MainLanguage => WikiLanguages.Split(',')[0];
 
+    [Field(Name = "")]
+    public int MaxSearchResults { get; set; } = 15
+
     // Could add a PopupWiki lite version for slower internet speeds
     //[Field(Name = "Load minimalist HTML for speed?")]
     //public bool MinimalistHtml { get; set; } = false;

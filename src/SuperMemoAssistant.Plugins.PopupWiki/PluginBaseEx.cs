@@ -10,7 +10,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
 {
   public static class PluginBaseEx
   {
-    public static bool RegisterPopupWindowProvider<T>(this SMAPluginBase<T> plugin, string name, List<string> urlRegexes, IContentProvider provider) where T : SMAPluginBase<T>
+    public static bool RegisterPopupWindowProvider<T>(this SMAPluginBase<T> plugin, string name, string[] urlRegexes, IBrowserContentProvider provider) where T : SMAPluginBase<T>
     {
       var svc = plugin.GetService<IPopupWindowSvc>();
       return svc.IsNull()

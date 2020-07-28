@@ -36,6 +36,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
   using System.Runtime.Remoting;
   using System.Windows.Input;
   using Anotar.Serilog;
+  using SuperMemoAssistant.Plugins.PopupWiki.Service;
   using SuperMemoAssistant.Plugins.PopupWindow.Interop;
   using SuperMemoAssistant.Services;
   using SuperMemoAssistant.Services.IO.HotKeys;
@@ -65,7 +66,15 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
     /// <inheritdoc />
     public override bool HasSettings => true;
     public PopupWikiCfg Config { get; set; }
-    private PopupWikiProvider _popupWikiProvider { get; } = new PopupWikiProvider();
+
+    /// <summary>
+    /// Content Service to call the wikipedia API
+    /// </summary>
+    private ContentService _contentService { get; } = new ContentService();
+
+    /// <summary>
+    /// Popup Window Service to open article and search content.
+    /// </summary>
     private IPopupWindowSvc popupWindowSvc { get; set; }
 
     #endregion
@@ -83,7 +92,14 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
 
       LoadConfig();
 
-      this.RegisterPopupWindowProvider("Wikipedia", new List<string> { UrlUtils.DesktopWikiUrlRegex, UrlUtils.MobileWikiUrlRegex }, _popupWikiProvider);
+
+      if (!this.RegisterPopupWindowProvider("Wikipedia", new string[] { UrlUtils.DesktopWikiUrlRegex, UrlUtils.MobileWikiUrlRegex }, _contentService))
+      {
+        LogTo.Warning("Failed to register popup window provider");
+        return;
+      }
+
+      LogTo.Debug("Successfully registered popup window provider");
 
       popupWindowSvc = GetService<IPopupWindowSvc>();
 
@@ -93,7 +109,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
            "Search Wikipedia for the selected term",
            HotKeyScopes.SM,
            new HotKey(Key.W, KeyModifiers.CtrlAlt),
-           WikipediaSearch
+           SearchWikipedia
       );
 
     }
@@ -105,8 +121,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
     }
 
 
-    [LogToErrorOnException]
-    public async void WikipediaSearch()
+    public async void SearchWikipedia()
     {
       try
       {

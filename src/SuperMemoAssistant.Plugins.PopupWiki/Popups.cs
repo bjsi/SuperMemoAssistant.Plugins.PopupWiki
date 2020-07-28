@@ -35,7 +35,7 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
     public static string OpenEditSearchTermDialog(string Title, string Message, string query = "")
     {
 
-      var editedTerm = Application.Current.Dispatcher.Invoke(() =>
+      return Application.Current.Dispatcher.Invoke(() =>
       {
         string res = null;
         var wdw = new EditSearchTermWdw(query, Title, Message);
@@ -49,7 +49,6 @@ namespace SuperMemoAssistant.Plugins.PopupWiki
         return res;
       });
 
-      return editedTerm;
     }
 
     /// <summary>
